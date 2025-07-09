@@ -1,4 +1,3 @@
-// sync.js
 const sequelize = require('./db');
 const CompanyStructure = require('./models/CompanyStructure');
 
@@ -7,7 +6,7 @@ const CompanyStructure = require('./models/CompanyStructure');
     await sequelize.authenticate();
     console.log('✅ DB Connected');
 
-    await sequelize.sync({ alter: true }); // use { force: true } for dev resets
+    await sequelize.sync({ alter: true }); 
     console.log('✅ Models Synced');
   } catch (err) {
     console.error('❌ Failed to connect or sync', err);

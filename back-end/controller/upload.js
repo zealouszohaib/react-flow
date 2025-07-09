@@ -6,24 +6,21 @@ const CompanyStructure = require('../models/CompanyStructure');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'upload/'); // Make sure this directory exists
+    cb(null, 'upload/'); 
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   }
 });
 
-// Create upload middleware
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 } 
 });
 
 
 
-// Single file upload endpoint
 const uploadFile = async (req, res) => {
-  // Use multer middleware
   upload.single('file')(req, res, async (err) => {
     if (err) {
       return res.status(400).json({ error: err.message });
@@ -34,11 +31,9 @@ const uploadFile = async (req, res) => {
     }
 
     try {
-      // Process the uploaded image with Groq
       const imagePath = path.join(__dirname, '..', req.file.path);
       const processedData = await processImageWithGroq(imagePath);
 
-      // Save the response to database
       const savedStructure = await CompanyStructure.create({
         fileName: req.file.originalname,
         extractedData: processedData

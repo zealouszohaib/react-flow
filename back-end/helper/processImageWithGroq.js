@@ -67,7 +67,6 @@ async function processImageWithGroq(imagePath) {
 
     let raw = chatCompletion.choices[0].message.content;
 
-    // Remove markdown formatting and any potential whitespace
     raw = raw.replace(/```json|```/g, '').trim();
 
     try {
@@ -88,7 +87,6 @@ async function processImageWithGroq(imagePath) {
       console.error('JSON Parse Error:', parseError);
       console.error('Problematic JSON string:', raw);
 
-      // Try to fix common JSON issues
       try {
         // Replace single quotes with double quotes
         const fixedJson = raw.replace(/'/g, '"');
