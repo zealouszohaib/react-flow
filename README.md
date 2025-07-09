@@ -28,8 +28,8 @@ This application allows users to upload images and process them using AI to extr
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
-cd [repository-name]
+git clone [[your-repository-url]](https://github.com/zealouszohaib/react-flow.git)
+cd react-flow
 ```
 
 2. Install backend dependencies:
