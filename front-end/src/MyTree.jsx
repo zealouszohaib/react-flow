@@ -10,7 +10,7 @@ const FONT_SIZE = 12;
 const LINE_HEIGHT = 16;
 const PADDING = 10;
 
-let nodeIdCounter = 0; 
+let nodeIdCounter = 0;
 // Word wrapping
 const wrapText = (text, maxWidth, font = `${FONT_SIZE}px Arial`) => {
   const canvas = document.createElement('canvas');
@@ -56,7 +56,7 @@ const flattenTree = (node, parentName = null, level = 0) => {
 };
 
 // Columns
-const generateColumns = (flatData, addNode, deleteNode) => {
+const generateColumns = (flatData, addNode, deleteNode, editNode) => {
   const allKeys = new Set();
   flatData.forEach(row => Object.keys(row).forEach(key => allKeys.add(key)));
   const columns = Array.from(allKeys).map(key => ({
@@ -69,6 +69,7 @@ const generateColumns = (flatData, addNode, deleteNode) => {
     name: 'Actions',
     cell: row => (
       <>
+        <button className='button button-edit' onClick={() => editNode(row.id)}>Edit</button>
         <button className='button button-add' onClick={() => addNode(row.id)}>Add</button>
         <button className='button button-delete' onClick={() => deleteNode(row.id)} >Delete</button>
       </>
@@ -116,6 +117,9 @@ const MyTree = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalParentId, setModalParentId] = useState(null);
   const [newNodeData, setNewNodeData] = useState({ name: '', title: '', location: '' });
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editNodeId, setEditNodeId] = useState(null);
+  const [editNodeData, setEditNodeData] = useState({ name: '', title: '', location: '' });
 
   const treeContainerRef = useRef(null);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
@@ -163,6 +167,56 @@ const MyTree = () => {
     setTreeData(remove(treeData));
   };
 
+  // Edit node modal trigger
+  const editNode = (nodeId) => {
+    // Find node in tree
+    const findNode = (nodes) => {
+      for (let node of nodes) {
+        if (node.id === nodeId) return node;
+        if (node.children) {
+          const found = findNode(node.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    const node = findNode(treeData);
+    if (node) {
+      setEditNodeId(nodeId);
+      setEditNodeData({
+        name: node.name || '',
+        title: node.attributes?.title || '',
+        location: node.attributes?.location || ''
+      });
+      setShowEditModal(true);
+    }
+  };
+
+  // Edit node submit
+  const handleEditSubmit = () => {
+    const updateNode = (nodes) => {
+      return nodes.map(node => {
+        if (node.id === editNodeId) {
+          return {
+            ...node,
+            name: editNodeData.name,
+            attributes: {
+              ...node.attributes,
+              title: editNodeData.title,
+              location: editNodeData.location
+            }
+          };
+        } else if (node.children) {
+          return { ...node, children: updateNode(node.children) };
+        } else {
+          return node;
+        }
+      });
+    };
+    setTreeData(prev => updateNode(prev));
+    setShowEditModal(false);
+  };
+
   useEffect(() => {
     const fetchCompany = async () => {
       try {
@@ -205,7 +259,7 @@ const MyTree = () => {
   if (!treeData.length) return <div>No data available</div>;
 
   const flatData = treeData.map(node => flattenTree(node)).flat();
-  const columns = generateColumns(flatData, addNode, deleteNode);
+  const columns = generateColumns(flatData, addNode, deleteNode, editNode);
   const filteredData = flatData.filter(row =>
     Object.values(row).join(' ').toLowerCase().includes(filterText.toLowerCase())
   );
@@ -226,6 +280,23 @@ const MyTree = () => {
             />
             <button className="mytree-btn" onClick={handleAddSubmit}>Add</button>
             <button className="mytree-btn cancel" onClick={() => setShowModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="mytree-modal-bg">
+          <div className="mytree-modal-card">
+            <h3>Edit Node</h3>
+            <input
+              className="mytree-input"
+              placeholder="Full Name"
+              value={editNodeData.name}
+              onChange={e => setEditNodeData({ ...editNodeData, name: e.target.value })}
+            />
+            <button className="mytree-btn" onClick={handleEditSubmit}>Save</button>
+            <button className="mytree-btn cancel" onClick={() => setShowEditModal(false)}>Cancel</button>
           </div>
         </div>
       )}
