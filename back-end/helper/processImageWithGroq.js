@@ -59,7 +59,7 @@ async function processImageWithGroq(imagePath) {
       ],
       model: "meta-llama/llama-4-scout-17b-16e-instruct",
       temperature: 0.7,
-      max_completion_tokens: 1324,
+      max_completion_tokens: 4024,
       top_p: 1,
       stream: false,
       stop: null
