@@ -3,10 +3,12 @@ const path = require('path');
 const { processImageWithGroq } = require('../helper/processImageWithGroq');
 const CompanyStructure = require('../models/CompanyStructure');
 
+const convertPdfToImage = require('../helper/convertPdfToImage');
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'upload/'); 
+    cb(null, 'upload/');
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -15,7 +17,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 } 
+  limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 
@@ -31,9 +33,23 @@ const uploadFile = async (req, res) => {
     }
 
     try {
-      const imagePath = path.join(__dirname, '..', req.file.path);
-      const processedData = await processImageWithGroq(imagePath);
+      const filePath = path.join(__dirname, '..', req.file.path);
 
+
+      let processedData;
+      if (req.file.mimetype === 'application/pdf') {
+        // Convert PDF to images
+        const imagePaths = await convertPdfToImage(filePath); // Now correctly returns array
+        // Process each image
+        processedData = [];
+        for (const imgPath of imagePaths) {
+          const data = await processImageWithGroq(imgPath);
+          processedData.push(data);
+        }
+      } else {
+        // Process as image
+        processedData = await processImageWithGroq(filePath);
+      }
       const savedStructure = await CompanyStructure.create({
         fileName: req.file.originalname,
         extractedData: processedData
