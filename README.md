@@ -28,8 +28,8 @@ This application allows users to upload images and process them using AI to extr
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
-cd [repository-name]
+git clone https://github.com/zealouszohaib/react-flow.git
+cd react-flow
 ```
 
 2. Install backend dependencies:
@@ -52,13 +52,14 @@ GROQ_API_KEY=your_api_key_here
 5. Start the backend server:
 ```bash
 cd back-end
-npm start
+npm run start
+npm run dev
 ```
 
 6. Start the frontend development server:
 ```bash
 cd front-end
-npm start
+npm run dev
 ```
 
 The application will be available at `http://localhost:3000`
